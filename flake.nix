@@ -40,7 +40,6 @@
               self.formatter.${system}
             ];
           shellHook = ''
-            export PNPM_HOME="$PWD/.pnpm"
             export PATH="$PWD/node_modules/.bin:$PNPM_HOME:$PATH"
             export NEXT_TELEMETRY_DISABLED=1
 
