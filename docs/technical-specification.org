@@ -1,0 +1,128 @@
+#+TITLE: Squad Health Platform — Technical Specification
+#+AUTHOR: nicksha
+#+DATE: 2026-07-30
+#+OPTIONS: toc:2 num:t
+#+STARTUP: overview
+
+* Project Overview
+** Purpose
+   Injury and availability management for semi-professional football
+   clubs. Primary market: Balkan region semi-pro clubs, reached via
+   partner-led sales.
+
+** Design Principles
+   1. *Immutable log, mutable projection.* Clinical history is
+      append-only; current state is a derived convenience.
+   2. *Clinical/availability separation.* Coaches see availability.
+      Only medical staff see diagnoses. Enforced at data-access layer.
+   3. *Two capture contexts.* Pitchside (phone, <30s, offline-tolerant)
+      and post-match (desktop, complete, analytical).
+   4. *Honest metrics only.* Every displayed number must be explainable
+      from its inputs. Sample sizes shown where relevant.
+
+** Non-Goals (v1)
+   - Player self-service accounts
+   - Guardian portal (deferred; required before U19 clubs onboard)
+   - Training load / ACWR (requires player accounts)
+   - Fixture management
+   - Concussion protocol (deferred by decision 2026-07-30)
+
+* Roles and Permissions
+** Sensitivity Tiers
+   - PUBLIC :: roster, shirt number, position
+   - AVAILABILITY :: fit/unavailable, reason category, expected return,
+     body region
+   - CLINICAL :: diagnosis, notes, pain scores, exam findings
+
+** Key Decisions
+*** CLUB_ADMIN has no clinical access
+    Rationale: not a clinician; GDPR Art. 9 lawful basis does not
+    extend to squad valuation. Admins receive aggregates only.
+    Positioned to clients as a confidentiality feature.
+    #+BEGIN_QUOTE
+    Pending: confirm with sales partner. If pushback, offer
+    break-glass flow (medical lead approves, time-boxed, audited).
+    #+END_QUOTE
+
+*** Coaches: write-only into clinical records
+    May create QUICK injury logs; may not read clinical detail.
+    Serves pitchside capture when physio unavailable.
+
+*** Rehab stage gating
+    Stages 1-4: MEDICAL_STAFF. Stages 5-6: MEDICAL_LEAD only.
+
+* Data Model
+** Core Entities
+   #+BEGIN_SRC text
+   clubs
+     └─ teams ─ seasons
+          └─ squad_memberships ── players
+                                    ├─ emergency_contacts
+                                    ├─ medical_exams
+                                    ├─ availability_blocks
+                                    ├─ disciplinary_cards
+                                    └─ injury_episodes
+                                         ├─ injury_status_events (append-only)
+                                         ├─ pain_assessments
+                                         ├─ treatments
+                                         └─ rehab_plans
+                                              └─ rehab_stage_progress
+   #+END_SRC
+
+** Notable Modeling Decisions
+*** Shirt number on squad_memberships, not players
+    Season- and team-scoped fact. Player may hold different numbers
+    across squads.
+
+*** Availability as multi-cause
+    ~availability_blocks~ covers INJURY | ILLNESS | SUSPENSION |
+    PERSONAL | INTERNATIONAL_DUTY | NOT_REGISTERED. Coach queries
+    never touch ~injury_episodes~.
+
+*** Two severity scales
+    - ~severity_grade~ (1-4) :: tissue damage, assessed once
+    - ~pain_assessments~ (0-10) :: pain/function, measured repeatedly
+    These are different constructs. Do not merge.
+
+*** Expected vs actual return dates
+    Four columns retained deliberately. Difference yields estimate
+    accuracy metric. Training return ≠ match return.
+
+*** body_map_hint is a hint
+    ~region~ + ~side~ are canonical. Coordinates are for rendering
+    only and must never drive analytics grouping.
+
+* Demo Scope (2026-07-31)
+** Approach
+   Clickable prototype. Seeded data, no auth, no multi-tenancy.
+   Role switcher exposed as a demo feature.
+
+** Screens
+   - [ ] Team Health Overview
+   - [ ] Player Profile + body map
+   - [ ] Injury Trends
+
+** Deliberate Omissions
+   Auth, RLS, audit logging, offline sync, i18n.
+   To be built post-demo against real client feedback.
+
+* Open Questions
+  - [ ] Confirm target language(s): Croatian vs Bosnian vs English
+  - [ ] Who performs data entry at client clubs?
+  - [ ] Price point per club per month
+  - [ ] U19 squads in scope? (drives guardian/consent work)
+  - [ ] Severity grade scale — confirm 1-4 with club doctors
+  - [ ] Written agreement: no client commitments without dev sign-off
+
+* Roadmap
+** v1.1
+   - Auth + RLS + audit logging
+   - i18n (hr/bs)
+   - Offline capture with sync queue
+** v1.2
+   - Concussion protocol
+   - Player accounts + self-reported pain scores
+   - Guardian access for minors
+** v2
+   - Training load and exposure hours
+   - Cross-club anonymised benchmarking
