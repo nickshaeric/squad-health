@@ -51,19 +51,6 @@ const NON_INJURY_BLOCKS: AvailabilityBlock[] = [
     nonClinicalNote:
       "Reported unwell 28/07. Not training. Review Friday.",
   },
-  {
-    id: "block-reg-1",
-    clubId: CLUB.id,
-    playerId: "player-25",
-    reason: "NOT_REGISTERED",
-    episodeId: null,
-    startsOn: "2026-01-06",
-    endsOn: null,
-    matchesRemaining: null,
-    nonClinicalNote:
-      "International transfer certificate outstanding. Cannot be " +
-      "named in a matchday squad until registration completes.",
-  },
 ];
 
 /**
@@ -83,8 +70,8 @@ function blocksFromEpisodes(): AvailabilityBlock[] {
       endsOn: episode.expectedReturnMatch,
       matchesRemaining: null,
       // Deliberately non-clinical. This string is visible to coaching
-      // and administrative roles, so it carries body region and timing
-      // but never a diagnosis.
+      // and administrative roles, so it carries timing but never a
+      // diagnosis.
       nonClinicalNote: null,
     }),
   );
