@@ -48,6 +48,51 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* ------------------------------------------------------------------ */
+/* Injury severity scale                                              */
+/*                                                                    */
+/* Ordinal, not categorical. Green is deliberately excluded: it       */
+/* already signals "fit and available" elsewhere in the interface,    */
+/* so a green ring around an injury site would contradict itself.     */
+/* Unaffected anatomy is neutral, never green.                        */
+/* ------------------------------------------------------------------ */
+
+@theme inline {
+  --color-severity-none: var(--severity-none);
+  --color-severity-minor: var(--severity-minor);
+  --color-severity-moderate: var(--severity-moderate);
+  --color-severity-severe: var(--severity-severe);
+  --color-severity-critical: var(--severity-critical);
+
+  --color-availability-available: var(--availability-available);
+  --color-availability-doubtful: var(--availability-doubtful);
+  --color-availability-unavailable: var(--availability-unavailable);
+}
+
+:root {
+  --severity-none: oklch(0.87 0.005 260);
+  --severity-minor: oklch(0.85 0.13 95);
+  --severity-moderate: oklch(0.78 0.16 75);
+  --severity-severe: oklch(0.68 0.19 45);
+  --severity-critical: oklch(0.58 0.21 28);
+
+  --availability-available: oklch(0.65 0.15 150);
+  --availability-doubtful: oklch(0.78 0.16 75);
+  --availability-unavailable: oklch(0.6 0.2 25);
+}
+
+.dark {
+  --severity-none: oklch(0.32 0.008 260);
+  --severity-minor: oklch(0.78 0.14 95);
+  --severity-moderate: oklch(0.72 0.17 70);
+  --severity-severe: oklch(0.63 0.2 42);
+  --severity-critical: oklch(0.55 0.22 27);
+
+  --availability-available: oklch(0.7 0.16 152);
+  --availability-doubtful: oklch(0.75 0.16 72);
+  --availability-unavailable: oklch(0.62 0.21 25);
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
