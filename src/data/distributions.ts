@@ -205,6 +205,31 @@ export const GRADE_WEIGHTS: readonly [SeverityGrade, number][] = [
   [4, 3],
 ];
 
+/**
+ * Regions where a grade 3 or 4 injury is implausible.
+ *
+ * Grade is otherwise assigned independently of region, which produces a
+ * six-week lumbar strain outranking a hamstring tear in mean days out.
+ * Mechanical low back pain and soft-tissue cervical or abdominal
+ * complaints resolve in days to a fortnight; they do not generate
+ * season-ending absences, and a recovery table that says otherwise is
+ * one a physio stops trusting.
+ */
+export const MILD_ONLY_REGIONS: readonly BodyRegion[] = [
+  "LOWER_BACK",
+  "UPPER_BACK",
+  "NECK",
+  "ABDOMEN",
+  "CHEST",
+  "HAND",
+  "ARM",
+];
+
+export const MILD_GRADE_WEIGHTS: readonly [SeverityGrade, number][] = [
+  [1, 70],
+  [2, 30],
+];
+
 /** Absence band implied by tissue grade. */
 export const GRADE_ABSENCE: Record<
   SeverityGrade,

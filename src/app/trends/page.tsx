@@ -218,13 +218,13 @@ export default function TrendsPage() {
                     dataKey="previous"
                     name={previousSeason?.label ?? "Previous"}
                     fill="var(--muted-foreground)"
-                    fillOpacity={0.35}
+                    fillOpacity={0.3}
                     radius={[0, 3, 3, 0]}
                   />
                   <Bar
                     dataKey="current"
                     name={currentSeason?.label ?? "Current"}
-                    fill="var(--chart-1)"
+                    fill="var(--severity-severe)"
                     radius={[0, 3, 3, 0]}
                   />
                 </BarChart>
@@ -283,6 +283,8 @@ export default function TrendsPage() {
                   <Bar
                     dataKey="count"
                     name="Episodes"
+                    fill="var(--severity-severe)"
+                    fillOpacity={0.8}
                     radius={[0, 3, 3, 0]}
                   >
                     {typeData.map((_, index) => (

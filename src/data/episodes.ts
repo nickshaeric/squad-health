@@ -14,6 +14,8 @@ import {
   ACTIVITY_WEIGHTS,
   GRADE_ABSENCE,
   GRADE_WEIGHTS,
+  MILD_GRADE_WEIGHTS,
+  MILD_ONLY_REGIONS,
   RECURRENCE_PRONE_REGIONS,
   REGION_INJURY_TYPES,
   REGION_WEIGHTS,
@@ -54,9 +56,8 @@ function timestamp(iso: string, hour = 10): string {
 // Generated records are fine in aggregate but fall apart under scrutiny,
 // and these six are the ones under scrutiny.
 //
-// Target current state: 20 fit, 3 unavailable through injury, 2 in rehab
-// and returning, 1 unavailable for a non-injury reason. That gives a
-// realistic 10-15% unavailability rate rather than a squad that looks
+// Target current state: 18 fit, 7 unavailable, 1 doubtful. That gives a
+// realistic pre-season unavailability rate rather than a squad that looks
 // like a casualty ward.
 // ---------------------------------------------------------------------------
 
@@ -223,9 +224,8 @@ const HERO_EPISODES: InjuryEpisodeClinical[] = [
 ];
 
 /**
- * The other five current unavailabilities. Deliberately varied so the
- * Team Health Overview shows a range of statuses, completeness states,
- * and a non-injury cause.
+ * The other current unavailabilities. Deliberately varied so the Team
+ * Health Overview shows a range of statuses and completeness states.
  */
 const CURRENT_EPISODES: InjuryEpisodeClinical[] = [
   {
@@ -437,7 +437,14 @@ function generateEpisodes(): InjuryEpisodeClinical[] {
       const mechanism = rng.weighted(TYPE_MECHANISMS[injuryType]);
       const activity = rng.weighted(ACTIVITY_WEIGHTS);
       const surface = rng.weighted(SURFACE_WEIGHTS);
-      const grade: SeverityGrade = rng.weighted(GRADE_WEIGHTS);
+
+      // Regions that cannot plausibly produce a long absence draw from a
+      // capped grade distribution, so a lumbar strain does not outrank a
+      // hamstring tear in mean days out.
+      const grade: SeverityGrade = MILD_ONLY_REGIONS.includes(region)
+        ? rng.weighted(MILD_GRADE_WEIGHTS)
+        : rng.weighted(GRADE_WEIGHTS);
+
       const band: AbsenceBand = rng.weighted(GRADE_ABSENCE[grade]);
 
       const onsetDate = addDays(window.from, rng.int(0, span));
